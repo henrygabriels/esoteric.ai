@@ -20,6 +20,7 @@ interface Pattern {
 // - Add success state and confirmation messaging
 // - Consider adding preview of first email
 // - Implement local storage to remember subscribed state
+// - Add explainer message in chatbox
 
 export const DailyPattern: React.FC = () => {
   const [expanded, setExpanded] = useState(false);
@@ -345,8 +346,13 @@ ${currentRevelation.content}`);
   };
 
   const showEmailModalWithSource = (source: 'daily' | 'current' | 'other' | 'query') => {
-    setEmailModalSource(source);
-    setShowEmailModal(true);
+    if (source === 'daily' || source === 'current') {
+      window.location.href = '/subscribe/daily';
+    } else if (source === 'query') {
+      window.location.href = '/subscribe/archive';
+    } else {
+      window.location.href = '/subscribe/daily';
+    }
   };
 
   return (
@@ -643,88 +649,6 @@ ${currentRevelation.content}`);
                 {saved ? 'SAVED' : 'SAVE'}
               </span>
             </button>
-          </div>
-        )}
-
-        {/* Email Modal */}
-        {showEmailModal && (
-          <div className="fixed inset-0 bg-black/90 flex items-center justify-center p-4 z-50">
-            <div className="bg-gray-900 p-8 rounded-lg border border-gray-800 w-full max-w-md relative">
-              <button 
-                onClick={() => setShowEmailModal(false)}
-                className="absolute top-4 right-4 text-gray-500 hover:text-white font-mono"
-              >
-                ✕
-              </button>
-              <div className="space-y-6">
-                {emailModalSource === 'daily' ? (
-                  <>
-                    <div className="font-mono text-xs text-gray-400">
-                      &gt; DAILY REVELATION SUBSCRIPTION
-                    </div>
-                    <iframe
-                      src="YOUR_SUBSTACK_EMBED_URL"
-                      width="100%"
-                      height="320"
-                      style={{ border: '0px', background: 'transparent' }}
-                      frameBorder="0"
-                      scrolling="no"
-                      className="mt-4"
-                    ></iframe>
-                  </>
-                ) : emailModalSource === 'current' ? (
-                  <>
-                    <div className="font-mono text-xs text-gray-400">
-                      &gt; DAILY REVELATION #371 ARCHIVAL REQUEST
-                    </div>
-                    <iframe
-                      src="YOUR_SUBSTACK_EMBED_URL"
-                      width="100%"
-                      height="320"
-                      style={{ border: '0px', background: 'transparent' }}
-                      frameBorder="0"
-                      scrolling="no"
-                      className="mt-4"
-                    ></iframe>
-                  </>
-                ) : emailModalSource === 'query' ? (
-                  <>
-                    <div className="font-mono text-xs text-gray-400">
-                      &gt; ARCHIVE QUERY RESPONSE REQUEST
-                    </div>
-                    <div className="font-mono text-xs text-gray-500 leading-relaxed mt-4">
-                      &gt; your query will be processed when server load permits
-                      <br/>&gt; results will be transmitted via secure channel
-                    </div>
-                    <iframe
-                      src="YOUR_SUBSTACK_EMBED_URL"
-                      width="100%"
-                      height="320"
-                      style={{ border: '0px', background: 'transparent' }}
-                      frameBorder="0"
-                      scrolling="no"
-                      className="mt-4"
-                    ></iframe>
-                  </>
-                ) : (
-                  <>
-                    <div className="font-mono text-xs text-gray-400">
-                      &gt; PATTERN ARCHIVAL REQUEST
-                    </div>
-                    <div className="font-mono text-xs text-gray-500 leading-relaxed">
-                      &gt; initiating temporal bridge
-                      <br/>&gt; preparing daily transmission
-                      <br/>&gt; awaiting contact signal...
-                    </div>
-                    <div className="font-mono text-[10px] text-gray-600 mt-4">
-                      &gt; Note: Your email will be used to establish a secure channel for pattern transmission.
-                      <br/>&gt; Transmission frequency: Daily [0000-2359 UTC]
-                      <br/>&gt; Protocol: Secure, Unmonitored, Discrete
-                    </div>
-                  </>
-                )}
-              </div>
-            </div>
           </div>
         )}
       </div>
