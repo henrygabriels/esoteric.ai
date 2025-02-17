@@ -38,7 +38,7 @@ export const DailyPattern: React.FC = () => {
   const [isQuerying, setIsQuerying] = useState(false);
   const [queryText, setQueryText] = useState('');
   const [showDemandMessage, setShowDemandMessage] = useState(false);
-  const [chatMessages, setChatMessages] = useState<Array<{type: 'user' | 'system', text: string}>>([]);
+  const [chatMessages, setChatMessages] = useState<Array<{ type: 'user' | 'system', text: string }>>([]);
   const [loadingSteps, setLoadingSteps] = useState<string[]>([]);
   const [isError, setIsError] = useState(false);
   const [showPattern, setShowPattern] = useState(true);
@@ -82,7 +82,7 @@ export const DailyPattern: React.FC = () => {
       day: 'numeric',
       year: 'numeric'
     });
-    
+
     const time = now.toLocaleTimeString('en-US', {
       hour12: false,
       hour: '2-digit',
@@ -95,7 +95,7 @@ export const DailyPattern: React.FC = () => {
       day: '2-digit',
       year: 'numeric'
     }).replace(/\//g, '.');
-    
+
     setFormattedDate(date);
     setFormattedTime(time);
     setTimestamp(`[${shortDate} ${time}]`);
@@ -103,7 +103,7 @@ export const DailyPattern: React.FC = () => {
     // Select revelation based on days since February 17th, 2025
     const startDate = new Date(2025, 1, 17); // February 17th, 2025
     const daysSinceStart = Math.floor((now.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
-    
+
     // Find the index in the revelations array
     // Start with index 0 (revelation 371) and cycle through
     const revelationIndex = ((daysSinceStart % revelations.length) + revelations.length) % revelations.length;
@@ -166,7 +166,7 @@ export const DailyPattern: React.FC = () => {
     const title = lines[1] || '';
     const mainLines = lines.slice(2, 6);
     const warnings = lines.slice(6);
-    
+
     return { header, title, mainLines, warnings, isComplete: typedText.length === fullText.length };
   };
 
@@ -186,11 +186,11 @@ export const DailyPattern: React.FC = () => {
     const tomorrow = new Date(now);
     tomorrow.setHours(24, 0, 0, 0); // Set to next midnight in local time
     const diff = tomorrow.getTime() - now.getTime();
-    
+
     const hours = Math.floor(diff / (1000 * 60 * 60));
     const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
     const seconds = Math.floor((diff % (1000 * 60)) / 1000);
-    
+
     return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
   };
 
@@ -207,7 +207,7 @@ export const DailyPattern: React.FC = () => {
 
   const handleQuery = async () => {
     if (!queryText.trim()) return;
-    
+
     // Add user message
     setChatMessages(prev => [...prev, { type: 'user', text: queryText }]);
     const userQuery = queryText;
@@ -263,10 +263,10 @@ export const DailyPattern: React.FC = () => {
         }, failureDelay);
       }
     };
-    
+
     // Start the first step with a random delay
     loadingTimeoutRef.current = setTimeout(addNextStep, 800 + Math.random() * 1200);
-    
+
     try {
       const response = await fetch('/api/query', {
         method: 'POST',
@@ -288,8 +288,8 @@ export const DailyPattern: React.FC = () => {
     } catch (error) {
       console.error('Error querying archive:', error);
       setShowDemandMessage(true);
-      setChatMessages(prev => [...prev, { 
-        type: 'system', 
+      setChatMessages(prev => [...prev, {
+        type: 'system',
         text: '> ERROR: Archive access currently restricted due to high demand.\n\n> To receive a response when server capacity is available, please click <button class="text-white hover:text-gray-300 underline cursor-pointer">save</button> or check back later.'
       }]);
       setIsError(true);
@@ -310,13 +310,13 @@ export const DailyPattern: React.FC = () => {
     // For system messages, look for the save button markup and replace it with a clickable element
     if (message.text.includes('class="text-white hover:text-gray-300 underline cursor-pointer"')) {
       return (
-        <span 
-          dangerouslySetInnerHTML={{ 
+        <span
+          dangerouslySetInnerHTML={{
             __html: message.text.replace(
               /<button class="text-white hover:text-gray-300 underline cursor-pointer">save<\/button>/g,
               `<span class="text-white hover:text-gray-300 underline cursor-pointer" onclick="document.getElementById('save-button').click()">save</span>`
             )
-          }} 
+          }}
         />
       );
     }
@@ -364,11 +364,10 @@ ${currentRevelation.content}`);
               </div>
               <div className="font-mono text-xs text-gray-300 leading-relaxed space-y-4">
                 {getTypedLines().mainLines.map((line, index) => (
-                  <p key={index} 
-                     className={`transition-opacity duration-300 ${
-                       index === getTypedLines().mainLines.length - 1 && 
-                       getTypedLines().warnings.length === 0 ? 'typing-cursor' : ''
-                     }`}
+                  <p key={index}
+                    className={`transition-opacity duration-300 ${index === getTypedLines().mainLines.length - 1 &&
+                      getTypedLines().warnings.length === 0 ? 'typing-cursor' : ''
+                      }`}
                   >
                     {line}
                   </p>
@@ -376,11 +375,10 @@ ${currentRevelation.content}`);
               </div>
               <div className="font-mono text-[10px] text-gray-500 mt-8 leading-relaxed">
                 {getTypedLines().warnings.map((warning, index) => (
-                  <div key={index} 
-                       className={`transition-opacity duration-300 ${
-                         index === getTypedLines().warnings.length - 1 && 
-                         !getTypedLines().isComplete ? 'typing-cursor' : ''
-                       }`}
+                  <div key={index}
+                    className={`transition-opacity duration-300 ${index === getTypedLines().warnings.length - 1 &&
+                      !getTypedLines().isComplete ? 'typing-cursor' : ''
+                      }`}
                   >
                     {warning}
                   </div>
@@ -388,13 +386,13 @@ ${currentRevelation.content}`);
               </div>
               {showButton && (
                 <div className="flex items-center space-x-4 mt-6">
-                  <button 
+                  <button
                     onClick={handleFirstNext}
                     className="px-4 py-3 border border-gray-700 bg-gray-900/50 hover:bg-gray-900 transition-all font-mono text-xs text-gray-300 hover:text-white opacity-0 animate-fade-in rounded hover:border-gray-600 shadow-sm"
                   >
                     i
                   </button>
-                  <button 
+                  <button
                     onClick={dismissLandingModal}
                     className="flex-1 border border-gray-700 bg-gray-900/50 hover:bg-gray-900 transition-all py-3 font-mono text-xs text-gray-300 hover:text-white opacity-0 animate-fade-in hover:border-gray-600 shadow-sm"
                   >
@@ -418,7 +416,7 @@ ${currentRevelation.content}`);
               </div>
               {showFinalButton && (
                 <div className="flex justify-end">
-                  <button 
+                  <button
                     onClick={dismissLandingModal}
                     className="w-32 mt-6 border border-gray-700 bg-gray-900/50 hover:bg-gray-900 transition-all py-3 font-mono text-xs text-gray-300 hover:text-white opacity-0 animate-fade-in hover:border-gray-600 shadow-sm"
                   >
@@ -447,30 +445,32 @@ ${currentRevelation.content}`);
           <div className="mb-8 animate-fade-in">
             {/* Log Entry Header */}
             <div className="font-mono mb-12">
-              <div className="border-l-2 border-gray-800 pl-4 space-y-3">
-                <div className="text-2xl text-gray-200 font-serif tracking-wide">
-                  Daily Revelation for {formattedDate}
+              <div className="border-l-2 border-gray-800 pl-4 space-y-3 relative">
+                <div className="text-2xl text-gray-200 font-serif tracking-wide flex justify-between items-center pr-16">
+                  <div>Daily Revelation for {formattedDate}</div>
+                  <button
+                    onClick={() => {
+                      setSaved(!saved);
+                      showEmailModalWithSource('current');
+                    }}
+                    className="text-gray-500 hover:text-white transition-colors"
+                  >
+                    <span className="text-xl">{saved ? 'ᛚ' : 'ᛈ'}</span>
+                  </button>
                 </div>
                 <div className="text-xs text-gray-500 mt-2">
-                  &gt; Pattern #{currentRevelation.id}
+                  <div>&gt; Pattern #{currentRevelation.id}</div>
                 </div>
               </div>
             </div>
 
             {/* Main Pattern */}
-            <div className="mb-16">
+            <div className="mb-16 px-8 md:px-16">
               <div className="relative font-serif text-2xl mb-8 leading-relaxed tracking-wide">
                 {currentRevelation.title}
-                
-                <button 
-                  onClick={() => setSaved(!saved)}
-                  className="absolute -right-2 -top-2 p-2 text-gray-500 hover:text-white transition-colors"
-                >
-                  <span className="text-lg">{saved ? '🝞' : '🝢'}</span>
-                </button>
               </div>
-              
-              <div className="font-mono space-y-6 leading-relaxed">
+
+              <div className="font-mono space-y-6 leading-relaxed max-w-4xl">
                 <div className="text-sm leading-relaxed text-gray-300">
                   {currentRevelation.content.split('\n\n').map((paragraph, index) => (
                     <p key={index} className="mb-4 last:mb-0">
@@ -481,17 +481,17 @@ ${currentRevelation.content}`);
 
                 <p className="border-l border-gray-800 pl-4 text-xs text-gray-500">
                   SOURCE: {currentRevelation.source}
-                  <br/>
+                  <br />
                   SIGNIFICANCE: {currentRevelation.significance}
-                  <br/>
+                  <br />
                   STATUS: {currentRevelation.status}
                 </p>
               </div>
             </div>
 
             {/* Source Links */}
-            <div className="font-mono text-xs space-y-2 mb-12">
-              <div 
+            <div className="font-mono text-xs space-y-2 mb-12 px-8 md:px-16">
+              <div
                 onClick={handleAccessSource}
                 className="text-white hover:text-gray-300 cursor-pointer transition-colors"
               >
@@ -503,36 +503,40 @@ ${currentRevelation.content}`);
             </div>
 
             {/* Bottom Section with Search and Next Pattern */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-12">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-12 pl-6 pr-8 md:pr-16">
               {/* Left Column - Search */}
-              <div className="font-mono text-xs">
+              <div className="font-mono text-xs h-full">
                 <button
                   onClick={handleSearchRelated}
-                  className="w-full border border-gray-700 bg-gray-900/30 hover:bg-gray-800/50 transition-all duration-300 rounded-lg text-left hover:border-gray-500 hover:scale-[1.02] transform"
+                  className="w-full h-full border border-gray-700 bg-gray-900/30 hover:bg-gray-800/50 transition-all duration-300 rounded-lg text-left hover:border-gray-500 hover:scale-[1.02] transform"
                 >
-                  <div className="p-4 flex flex-col">
+                  <div className="p-4 flex flex-col h-full">
                     <div className="text-white font-mono text-sm font-bold tracking-wider mb-2"><span className="mr-2">ᛝ</span>SEARCH RELATED TEXTS</div>
-                    <div className="text-white space-y-4 mt-3">
-                      &gt; search our archive for related documents
-                      <br/><br/>&gt; chat with our AI about what you find, and new avenues of investigation
-                      <br/><br/>&gt; save and download all documents returned by any search
+                    <div className="text-white space-y-4 mt-3 flex-1 flex flex-col justify-between">
+                      <div className="space-y-4">
+                        &gt; search our archive for related documents
+                        <br /><br />&gt; chat with our AI about what you find, and new avenues of investigation
+                        <br /><br />&gt; save and download all documents returned by any search
+                      </div>
                     </div>
                   </div>
                 </button>
               </div>
 
               {/* Right Column - Next Pattern */}
-              <div className="font-mono text-xs">
+              <div className="font-mono text-xs h-full">
                 <button
                   onClick={() => showEmailModalWithSource('daily')}
-                  className="w-full bg-gray-900/30 rounded-lg border border-gray-800 text-left hover:bg-gray-800/50 transition-all duration-300 hover:border-gray-500 hover:scale-[1.02] transform"
+                  className="w-full h-full bg-gray-900/30 rounded-lg border border-gray-800 text-left hover:bg-gray-800/50 transition-all duration-300 hover:border-gray-500 hover:scale-[1.02] transform"
                 >
-                  <div className="p-4 flex flex-col">
+                  <div className="p-4 flex flex-col h-full">
                     <div className="text-white font-mono text-sm font-bold tracking-wider mb-2"><span className="mr-2">ᛝ</span>NEXT REVELATION</div>
-                    <div className="text-white space-y-4 mt-3">
-                      &gt; scheduled for {getTomorrowDate()} [00:00 Local]
-                      <br/><br/>&gt; temporal gateway opens in {countdown}
-                      <br/><br/>&gt; <span className="underline">click here</span> to subscribe to the daily revelation
+                    <div className="text-white space-y-4 mt-3 flex-1 flex flex-col justify-between">
+                      <div className="space-y-4">
+                        &gt; scheduled for {getTomorrowDate()} [00:00 Local]
+                        <br /><br />&gt; temporal gateway opens in {countdown}
+                        <br /><br />&gt; <span className="underline">click here</span> to subscribe to the daily revelation
+                      </div>
                     </div>
                   </div>
                 </button>
@@ -543,101 +547,119 @@ ${currentRevelation.content}`);
 
         {/* Query Interface */}
         {activeTab === 'query' && (
-          <div className="fixed inset-x-0 top-[140px] bottom-[72px] px-6 animate-fade-in">
-            <div className="h-full bg-gray-900/30 rounded-lg border border-gray-800 p-4 flex flex-col">
-              <div 
-                ref={chatContainerRef}
-                className="flex-1 space-y-4 overflow-y-auto font-mono scrollbar-thin scrollbar-thumb-gray-800 scrollbar-track-transparent"
-              >
-                {(chatMessages.length > 0 || loadingSteps.length > 0) && (
-                  <>
-                    {chatMessages.map((message, index) => (
-                      <div key={index} className={`${message.type === 'user' ? 'text-right' : ''}`}>
-                        <div className={`inline-block text-xs ${
-                          message.type === 'user' 
-                            ? 'bg-gray-800/50 text-white' 
+          <>
+            <button
+              onClick={() => setActiveTab('today')}
+              className="fixed left-6 top-[100px] font-mono text-xs text-gray-400 hover:text-white transition-colors z-10"
+            >
+              &lt; back
+            </button>
+            <div className="fixed inset-x-0 top-[140px] bottom-[72px] px-6 animate-fade-in">
+              <div className="h-full bg-gray-900/30 rounded-lg border border-gray-800 p-4 flex flex-col">
+                <div
+                  ref={chatContainerRef}
+                  className="flex-1 space-y-4 overflow-y-auto font-mono scrollbar-thin scrollbar-thumb-gray-800 scrollbar-track-transparent"
+                >
+                  {(chatMessages.length > 0 || loadingSteps.length > 0) && (
+                    <>
+                      {chatMessages.map((message, index) => (
+                        <div key={index} className={`${message.type === 'user' ? 'text-right' : ''}`}>
+                          <div className={`inline-block text-xs ${message.type === 'user'
+                            ? 'bg-gray-800/50 text-white'
                             : 'bg-gray-900/50 text-gray-400'
-                          } p-3 rounded-lg max-w-[80%] whitespace-pre-line font-mono`}>
-                          {renderMessageContent(message)}
+                            } p-3 rounded-lg max-w-[80%] whitespace-pre-line font-mono`}>
+                            {renderMessageContent(message)}
+                          </div>
                         </div>
-                      </div>
-                    ))}
-                    {loadingSteps.map((step, index) => (
-                      <div key={`loading-${index}`} className="text-xs text-gray-400">
-                        <div className="animate-pulse font-mono">
-                          &gt; {step}
+                      ))}
+                      {loadingSteps.map((step, index) => (
+                        <div key={`loading-${index}`} className="text-xs text-gray-400">
+                          <div className="animate-pulse font-mono">
+                            &gt; {step}
+                          </div>
                         </div>
-                      </div>
-                    ))}
-                  </>
-                )}
-              </div>
+                      ))}
+                    </>
+                  )}
+                </div>
 
-              <div className="flex space-x-2 mt-4">
-                <textarea 
-                  className="flex-1 bg-black/50 border border-gray-800 rounded px-3 py-2 text-xs text-white placeholder-gray-600 focus:outline-none focus:border-gray-700 font-mono min-h-[38px] resize-none overflow-hidden"
-                  placeholder="Type your query here..."
-                  value={queryText}
-                  onChange={(e) => {
-                    setQueryText(e.target.value);
-                    adjustTextareaHeight(e.target);
-                  }}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter' && !e.shiftKey && !isQuerying) {
-                      e.preventDefault();
-                      handleQuery();
-                    }
-                  }}
-                  disabled={isQuerying}
-                  rows={1}
-                  ref={(el) => {
-                    if (el) {
-                      adjustTextareaHeight(el);
-                    }
-                  }}
-                />
-                <button 
-                  onClick={() => showEmailModalWithSource('query')}
-                  className="px-4 py-2 bg-gray-900/50 border border-gray-800 rounded text-xs text-white hover:bg-gray-900 transition-all font-mono h-[38px] whitespace-nowrap"
-                >
-                  {saved ? 'Saved' : 'Save'}
-                </button>
-                <button 
-                  onClick={handleQuery}
-                  className={`px-4 py-2 bg-gray-900/50 border border-gray-800 rounded text-xs text-white hover:bg-gray-900 transition-all font-mono ${isQuerying ? 'opacity-50 cursor-not-allowed' : ''} h-[38px] whitespace-nowrap`}
-                  disabled={isQuerying}
-                >
-                  {isQuerying ? 'Processing...' : 'Send'}
-                </button>
+                <div className="flex space-x-2 mt-4">
+                  <textarea
+                    className="flex-1 bg-black/50 border border-gray-800 rounded px-3 py-2 text-xs text-white placeholder-gray-600 focus:outline-none focus:border-gray-700 font-mono min-h-[38px] resize-none overflow-hidden"
+                    placeholder="Type your query here..."
+                    value={queryText}
+                    onChange={(e) => {
+                      setQueryText(e.target.value);
+                      adjustTextareaHeight(e.target);
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' && !e.shiftKey && !isQuerying) {
+                        e.preventDefault();
+                        handleQuery();
+                      }
+                    }}
+                    disabled={isQuerying}
+                    rows={1}
+                    ref={(el) => {
+                      if (el) {
+                        adjustTextareaHeight(el);
+                      }
+                    }}
+                  />
+                  <button
+                    onClick={() => {
+                      setSaved(!saved);
+                      showEmailModalWithSource('current');
+                    }}
+                    className="px-4 py-2 bg-gray-900/50 border border-gray-800 rounded text-xs text-white hover:bg-gray-900 transition-all font-mono h-[38px] whitespace-nowrap"
+                  >
+                    {saved ? 'Saved' : 'Save'}
+                  </button>
+                  <button
+                    onClick={handleQuery}
+                    className={`px-4 py-2 bg-gray-900/50 border border-gray-800 rounded text-xs text-white hover:bg-gray-900 transition-all font-mono ${isQuerying ? 'opacity-50 cursor-not-allowed' : ''} h-[38px] whitespace-nowrap`}
+                    disabled={isQuerying}
+                  >
+                    {isQuerying ? 'Processing...' : 'Send'}
+                  </button>
+                </div>
               </div>
             </div>
-          </div>
+          </>
         )}
 
         {/* Saved Tab */}
         {activeTab === 'saved' && (
-          <div className="fixed inset-x-0 top-[140px] bottom-[72px] px-6 animate-fade-in flex items-center justify-center">
+          <>
             <button
-              onClick={() => showEmailModalWithSource('other')}
-              className="font-mono text-xs text-white hover:text-gray-200 transition-colors text-center"
+              onClick={() => setActiveTab('today')}
+              className="fixed left-6 top-[100px] font-mono text-xs text-gray-400 hover:text-white transition-colors z-10"
             >
-              coming soon
-              <br />-<br />
-              <span className="underline">get notified when available</span>
+              &lt; back
             </button>
-          </div>
+            <div className="fixed inset-x-0 top-[140px] bottom-[72px] px-6 animate-fade-in flex items-center justify-center">
+              <button
+                onClick={() => showEmailModalWithSource('other')}
+                className="font-mono text-xs text-white hover:text-gray-200 transition-colors text-center"
+              >
+                coming soon
+                <br />-<br />
+                <span className="underline">get notified when available</span>
+              </button>
+            </div>
+          </>
         )}
 
         {/* Save Button - Only show on non-query tabs */}
         {activeTab !== 'query' && (
           <div className="fixed bottom-32 right-6">
-            <button 
+            <button
               id="save-button"
               onClick={() => showEmailModalWithSource('current')}
               className="group flex flex-col items-center space-y-1 bg-gray-900/50 px-6 py-3 rounded-lg border border-gray-800 hover:bg-gray-900/80 transition-all shadow-lg"
             >
               <span className="text-2xl text-gray-400 group-hover:text-white transition-colors">
-                {saved ? 'ᛯ' : 'ᛨ'}
+                {saved ? 'ᛚ' : 'ᛈ'}
               </span>
               <span className="font-mono text-[10px] text-gray-500 group-hover:text-gray-300">
                 {saved ? 'SAVED' : 'SAVE'}
@@ -650,7 +672,7 @@ ${currentRevelation.content}`);
         {showEmailModal && (
           <div className="fixed inset-0 bg-black/90 flex items-center justify-center p-4 z-50">
             <div className="bg-gray-900 p-8 rounded-lg border border-gray-800 w-full max-w-md relative">
-              <button 
+              <button
                 onClick={() => setShowEmailModal(false)}
                 className="absolute top-4 right-4 text-gray-500 hover:text-white font-mono"
               >
@@ -694,7 +716,7 @@ ${currentRevelation.content}`);
                     </div>
                     <div className="font-mono text-xs text-gray-500 leading-relaxed mt-4">
                       &gt; your query will be processed when server load permits
-                      <br/>&gt; results will be transmitted via secure channel
+                      <br />&gt; results will be transmitted via secure channel
                     </div>
                     <iframe
                       src="YOUR_SUBSTACK_EMBED_URL"
@@ -713,13 +735,13 @@ ${currentRevelation.content}`);
                     </div>
                     <div className="font-mono text-xs text-gray-500 leading-relaxed">
                       &gt; initiating temporal bridge
-                      <br/>&gt; preparing daily transmission
-                      <br/>&gt; awaiting contact signal...
+                      <br />&gt; preparing daily transmission
+                      <br />&gt; awaiting contact signal...
                     </div>
                     <div className="font-mono text-[10px] text-gray-600 mt-4">
                       &gt; Note: Your email will be used to establish a secure channel for pattern transmission.
-                      <br/>&gt; Transmission frequency: Daily [0000-2359 UTC]
-                      <br/>&gt; Protocol: Secure, Unmonitored, Discrete
+                      <br />&gt; Transmission frequency: Daily [0000-2359 UTC]
+                      <br />&gt; Protocol: Secure, Unmonitored, Discrete
                     </div>
                   </>
                 )}
@@ -733,26 +755,26 @@ ${currentRevelation.content}`);
       <div className="fixed bottom-0 left-0 right-0 border-t border-gray-800 bg-black">
         <div className="p-4">
           <div className="flex justify-around items-center">
-            <button 
+            <button
               onClick={() => setActiveTab('today')}
-              className={`flex flex-col items-center space-y-1 group ${activeTab === 'today' ? 'text-white' : ''}`}
+              className={`flex flex-col items-center space-y-1 group ${activeTab === 'today' ? 'text-white font-bold' : 'text-gray-400 font-normal'}`}
             >
               <span className="text-lg group-hover:text-gray-300 transition-colors">ᛦ</span>
-              <span className="font-mono text-[10px] text-gray-400 group-hover:text-gray-300">TODAY</span>
+              <span className="font-mono text-[10px] group-hover:text-gray-300">TODAY</span>
             </button>
-            <button 
+            <button
               onClick={() => setActiveTab('query')}
-              className={`flex flex-col items-center space-y-1 group ${activeTab === 'query' ? 'text-white' : ''}`}
+              className={`flex flex-col items-center space-y-1 group ${activeTab === 'query' ? 'text-white font-bold' : 'text-gray-400 font-normal'}`}
             >
               <span className="text-lg group-hover:text-gray-300 transition-colors">ᛟ</span>
-              <span className="font-mono text-[10px] text-gray-400 group-hover:text-gray-300">QUERY</span>
+              <span className="font-mono text-[10px] group-hover:text-gray-300">QUERY</span>
             </button>
-            <button 
+            <button
               onClick={() => setActiveTab('saved')}
-              className={`flex flex-col items-center space-y-1 group ${activeTab === 'saved' ? 'text-white' : ''}`}
+              className={`flex flex-col items-center space-y-1 group ${activeTab === 'saved' ? 'text-white font-bold' : 'text-gray-400 font-normal'}`}
             >
-              <span className="text-lg group-hover:text-gray-300 transition-colors">ᛸ</span>
-              <span className="font-mono text-[10px] text-gray-400 group-hover:text-gray-300">SAVED</span>
+              <span className="text-[16px] group-hover:text-gray-300 transition-colors">ᛸ</span>
+              <span className="font-mono text-[10px] group-hover:text-gray-300">SAVED</span>
             </button>
           </div>
         </div>
