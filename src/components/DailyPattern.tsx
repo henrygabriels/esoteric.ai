@@ -2,16 +2,15 @@
 
 import React, { useState, useEffect } from 'react';
 import { ChevronDown } from 'lucide-react';
+import { revelations } from '@/data/revelations';
 
 interface Pattern {
   id: number;
   title: string;
   content: string;
-  details: string;
   source: string;
   significance: string;
   status: string;
-  date: string;
 }
 
 // TODO: Email Collection Implementation
@@ -49,6 +48,7 @@ export const DailyPattern: React.FC = () => {
   const shouldContinueLoadingRef = React.useRef(true);
   const [activeTab, setActiveTab] = useState<'today' | 'query' | 'saved'>('today');
   const [emailModalSource, setEmailModalSource] = useState<'daily' | 'current' | 'other' | 'query'>('other');
+  const [currentRevelation, setCurrentRevelation] = useState<Pattern | null>(null);
 
   const fullText = [
     '[SYSTEM INITIALIZED]',
@@ -99,6 +99,15 @@ export const DailyPattern: React.FC = () => {
     setFormattedDate(date);
     setFormattedTime(time);
     setTimestamp(`[${shortDate} ${time}]`);
+
+    // Select revelation based on days since February 17th, 2025
+    const startDate = new Date(2025, 1, 17); // February 17th, 2025
+    const daysSinceStart = Math.floor((now.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
+    
+    // Find the index in the revelations array
+    // Start with index 0 (revelation 371) and cycle through
+    const revelationIndex = ((daysSinceStart % revelations.length) + revelations.length) % revelations.length;
+    setCurrentRevelation(revelations[revelationIndex]);
 
     const hasSeenLanding = localStorage.getItem('hasSeenLanding');
     if (hasSeenLanding) {
@@ -315,19 +324,19 @@ export const DailyPattern: React.FC = () => {
   };
 
   const handleSearchRelated = () => {
+    if (!currentRevelation) return;
     setActiveTab('query');
     setQueryText(`Find content relating to:
 
-${`The Greek god Pan was proclaimed dead by sailors in the Mediterranean during the reign of Tiberius - the exact period when Christ's ministry began.
+${currentRevelation.title}
 
-Mediterranean sailors reported hearing a mysterious voice across still waters, crying out three times: "THAMUS! THAMUS! THAMUS PAN HO MEGAS TETHNEKE" ("Great Pan is dead")
-
-This proclamation of Pan's death, recorded during the reign of Tiberius [14-37 CE], precisely overlaps with the traditional dating of Christ's ministry and crucifixion [circa 30-33 CE].`}`);
+${currentRevelation.content}`);
   };
 
   const handleAccessSource = () => {
+    if (!currentRevelation) return;
     setActiveTab('query');
-    setQueryText('Search archive for: Plutarch, "De Defectu Oraculorum" [circa 100 CE]');
+    setQueryText(`Search archive for: ${currentRevelation.source}`);
   };
 
   const adjustTextareaHeight = (element: HTMLTextAreaElement) => {
@@ -434,7 +443,7 @@ This proclamation of Pan's death, recorded during the reign of Tiberius [14-37 C
         </div>
 
         {/* Daily Pattern Section */}
-        {activeTab === 'today' && (
+        {activeTab === 'today' && currentRevelation && (
           <div className="mb-8 animate-fade-in">
             {/* Log Entry Header */}
             <div className="font-mono mb-12">
@@ -443,7 +452,7 @@ This proclamation of Pan's death, recorded during the reign of Tiberius [14-37 C
                   Daily Revelation for {formattedDate}
                 </div>
                 <div className="text-xs text-gray-500 mt-2">
-                  &gt; Pattern #371
+                  &gt; Pattern #{currentRevelation.id}
                 </div>
               </div>
             </div>
@@ -451,7 +460,7 @@ This proclamation of Pan's death, recorded during the reign of Tiberius [14-37 C
             {/* Main Pattern */}
             <div className="mb-16">
               <div className="relative font-serif text-2xl mb-8 leading-relaxed tracking-wide">
-                The Greek god Pan was proclaimed dead by sailors in the Mediterranean during the reign of Tiberius - the exact period when Christ's ministry began.
+                {currentRevelation.title}
                 
                 <button 
                   onClick={() => setSaved(!saved)}
@@ -462,22 +471,20 @@ This proclamation of Pan's death, recorded during the reign of Tiberius [14-37 C
               </div>
               
               <div className="font-mono space-y-6 leading-relaxed">
-                <p className="text-sm leading-relaxed text-gray-300">
-                  Mediterranean sailors reported hearing a mysterious voice across still waters, 
-                  crying out three times: "THAMUS! THAMUS! THAMUS PAN HO MEGAS TETHNEKE" 
-                  ("Great Pan is dead")
-                  <br/><br/>
-                  This proclamation of Pan's death, recorded during the reign of Tiberius [14-37 CE],
-                  precisely overlaps with the traditional dating of Christ's ministry and crucifixion
-                  [circa 30-33 CE].
-                </p>
+                <div className="text-sm leading-relaxed text-gray-300">
+                  {currentRevelation.content.split('\n\n').map((paragraph, index) => (
+                    <p key={index} className="mb-4 last:mb-0">
+                      {paragraph}
+                    </p>
+                  ))}
+                </div>
 
                 <p className="border-l border-gray-800 pl-4 text-xs text-gray-500">
-                  SOURCE: Plutarch, "De Defectu Oraculorum" [circa 100 CE]
+                  SOURCE: {currentRevelation.source}
                   <br/>
-                  SIGNIFICANCE: Temporal alignment with Christian narratives
+                  SIGNIFICANCE: {currentRevelation.significance}
                   <br/>
-                  STATUS: Multiple independent translations confirm dating
+                  STATUS: {currentRevelation.status}
                 </p>
               </div>
             </div>
