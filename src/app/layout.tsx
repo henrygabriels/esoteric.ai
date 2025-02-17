@@ -2,7 +2,7 @@ import './globals.css'
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'Esoterica',
+  title: 'esoteric.ai',
   description: 'Daily esoteric patterns and synchronicities',
 }
 

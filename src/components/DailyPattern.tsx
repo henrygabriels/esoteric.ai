@@ -429,7 +429,7 @@ This proclamation of Pan's death, recorded during the reign of Tiberius [14-37 C
             {timestamp}
           </div>
           <div className="text-xl text-gray-300 font-mono tracking-wide">
-            esoterica.ai
+            esoteric.ai
           </div>
         </div>
 
